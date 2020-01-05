@@ -11,6 +11,12 @@ $(() => {
   // your JS code goes here
   console.log('New Year , New Start !')
 
+  const sceneColor = 0x000000
+  let part = 'one'
+  const radius = 100
+  let theta = 0
+  let speed = 0
+
   // xuan ran qi
   const renderer = new THREE.WebGLRenderer()
   // she zhi xuan ran qi de chi cun
@@ -19,7 +25,7 @@ $(() => {
   document.body.appendChild(renderer.domElement)
 
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x000000)
+  scene.background = new THREE.Color(sceneColor)
 
   // tou shi she xiang ji
   const camera = new THREE.PerspectiveCamera(
@@ -28,7 +34,7 @@ $(() => {
     0.1, // jin jie mian
     1000 // yuan jie mian
   )
-  camera.position.set(0, 0, 7.5)
+  camera.position.set(0, 0, 10)
   camera.lookAt(0, 0, 0)
   camera.rotation.x = 0
   camera.rotation.y = 0
@@ -155,6 +161,83 @@ $(() => {
   const animate = function () {
     requestAnimationFrame(animate)
 
+    if ((camera.position.x * camera.position.x + camera.position.z * camera.position.z) <= 2) {
+      // console.log('reach')
+      $('#help').hide()
+
+      const light = new THREE.DirectionalLight(0xffffff, 1)
+      light.position.set(10, 10, 10).normalize()
+      scene.add(light)
+
+      camera.position.set(0, 1600, 10)
+      camera.lookAt(0, 0, 0)
+
+      scene.remove(cube)
+      scene.remove(cube3)
+      scene.remove(line)
+      scene.remove(line1)
+      scene.remove(line2)
+      scene.remove(line3)
+      scene.remove(line4)
+      scene.remove(line5)
+      scene.remove(line6)
+
+      scene.background = new THREE.Color(0xffffff)
+
+      const geometry = new THREE.BoxBufferGeometry(20, 20, 20)
+      for (let i = 0; i < 4000; i++) {
+        const object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }))
+        object.position.x = Math.random() * 800 - 400
+        object.position.y = Math.random() * 1600 - 400
+        object.position.z = Math.random() * 800 - 400
+        object.rotation.x = Math.random() * 2 * Math.PI
+        object.rotation.y = Math.random() * 2 * Math.PI
+        object.rotation.z = Math.random() * 2 * Math.PI
+        object.scale.x = Math.random() + 0.5
+        object.scale.y = Math.random() + 0.5
+        object.scale.z = Math.random() + 0.5
+        scene.add(object)
+      }
+      part = 'two'
+    }
+
+    if (part === 'two') {
+      // camera.position.z += 1
+      theta += 0.15
+      speed += 0.01
+      camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta))
+      // camera.position.y = radius * Math.sin(THREE.Math.degToRad(theta))
+      camera.position.y -= speed
+      camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta))
+      camera.lookAt(scene.position)
+    }
+
+    if (camera.position.y < -1000) {
+      while (scene.children.length > 0) {
+        scene.remove(scene.children[0])
+      }
+      $('#help').show()
+
+      // console.log('scene.childen', scene.childen)
+
+      camera.position.set(0, 0, 10)
+      camera.lookAt(0, 0, 0)
+      scene.background = new THREE.Color(0x000000)
+      scene.add(cube)
+      scene.add(cube3)
+      scene.add(line)
+      scene.add(line1)
+      scene.add(line2)
+      scene.add(line3)
+      scene.add(line4)
+      scene.add(line5)
+      scene.add(line6)
+
+      part = 'one'
+      theta = 0
+      speed = 0
+    }
+
     if (pressingKeys.includes('w')) {
       camera.position.z -= Math.cos(camera.rotation.y) * 0.05
       camera.position.x -= Math.sin(camera.rotation.y) * 0.05
@@ -251,6 +334,10 @@ $(() => {
       pressingKeys[2] = 'a'
     } else if (event.key === 'd' || event.key === 'ArrowRight') {
       pressingKeys[3] = 'd'
+    }
+
+    if (event.key === 'e') {
+      camera.position.y = -1001
     }
 
     // if (event.key === 'c') {
